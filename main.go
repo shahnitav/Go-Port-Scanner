@@ -8,6 +8,7 @@ import (
 	"net"
 	"strings"
 	"strconv"
+	"sync"
 )
 
 //Declare global variables for the IP Address, Port Range and whether it is a SYN Scan
@@ -16,12 +17,62 @@ var ports []string
 var timeout int
 var SYN bool
 
+type PortScan struct {
+	Port int //Port Number
+	IsOpen bool //Status
+}
+
+var result []PortScan // Results
+
+//Connects to a port to check its status
+func connect(ip string , port int, timeout int) PortScan{
+	res := &PortScan {
+		Port: port,
+		IsOpen: false,
+	}
+	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", ip, port), time.Duration(timeout)*time.Millisecond)
+	if err == nil {
+		conn.Close()
+		res.IsOpen = true
+	}
+	return *res
+}
+
+//Check if the TCP Port is open 
+func isPortOpen(ports []string) []PortScan {
+	ch := make(chan PortScan)
+	//Launch goroutine
+	go func() {
+		var wg sync.WaitGroup
+		wg.Add(len(ports))
+		for _, port := range ports {
+			port_int, err := strconv.Atoi(port)
+			if err != nil {
+				fmt.Println("Error with port : ", port_int)
+				continue
+			}
+			go func(port_int int) {
+				defer wg.Done()
+				ch <- connect(ip, port_int, timeout)
+			}(port_int)
+		}
+		wg.Wait()
+		close(ch)
+	}()
+
+	//Append status updates over channel to result
+	for elem := range ch {
+		result = append(result, elem)
+	}
+
+	return result
+}
 
 //Get a list of ports to scan
 func getPortList(argPort string) []string {
 	//For multiple ports - 80,443,520
 	if strings.Contains(argPort, ",") {
-		ports := strings.Split(argPort, ",")
+		ports = strings.Split(argPort, ",")
 		for p := range ports {
 			_, err := strconv.Atoi(ports[p])
 			if err != nil {
@@ -33,7 +84,7 @@ func getPortList(argPort string) []string {
 		return ports
 	//For a range of ports - 1-120
 	} else if strings.Contains(argPort, "-"){
-		ports := strings.Split(argPort, "-")
+		ports = strings.Split(argPort, "-")
 		ports_min, err := strconv.Atoi(ports[0])
 		if err != nil {
 			fmt.Println("Invalid Minimum Port Value: ", ports_min)
@@ -62,7 +113,6 @@ func getPortList(argPort string) []string {
 	return []string{argPort}
 }
 
-
 // Argument parser and validator
 func parseArgs() (string, []string, int, bool) {
 	parser := argparse.NewParser("Go Port Scanner", "Scans for Open Ports on the given IP Address and Range of Ports.")
@@ -71,14 +121,14 @@ func parseArgs() (string, []string, int, bool) {
 	//Create Port Flag
 	argPort := parser.String("p", "port", &argparse.Options{Required: true, Help: "Ports to scan, can be a single value 80, or a range 80-120, or multiple values 80,91,443"})
 	//Create Timeout Flag
-	timeout := parser.Int("", "t", &argparse.Options{Required: false, Help: "Timeout in Millisecond, Default -> 1000ms", Default: 1000})
+	timeout := parser.Int("", "t", &argparse.Options{Required: false, Help: "Timeout in Millisecond, Default -> 500ms", Default: 500})
 	//Create SYN Flag
 	SYN := parser.Flag("s", "syn", &argparse.Options{Required: false, Help: "Will perform a SYN stealth scan to check for open ports"})
 	parser.Parse(os.Args)
 	//Validate Arguments
 	if net.ParseIP(*ip) == nil {
-		fmt.Printf("IP Address: %s is invalid", *ip)
-		fmt.Printf(os.Args[0] + "-h for Help")
+		fmt.Println("IP Address: "+ *ip + "is invalid")
+		fmt.Println(os.Args[0] + " -h for Help")
 		os.Exit(0)
 	}
 	ports := getPortList(*argPort)
@@ -105,6 +155,8 @@ func main() {
 	ip, ports, timeout, SYN = parseArgs()
 	start := time.Now()
 	fmt.Println("IP: ", ip, "\nPorts: ", ports, "\nTimeout: ", timeout, "\nSYN: ", SYN)
+	isPortOpen(ports)
+	fmt.Println("Result - ", result)
 	elapsed := time.Since(start)
 	fmt.Printf("Scan duration - %s", elapsed)
 }
