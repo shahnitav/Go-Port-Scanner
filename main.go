@@ -17,6 +17,34 @@ var ports []string
 var timeout int
 var SYN bool
 
+// Common Ports to give description to port numbers
+var commonPorts = map[int] string {
+	21: "ftp",
+	22: "ssh",
+	23: "telnet",
+	25: "smtp",
+	53: "DNS",
+	68: "DHCP",
+	80 :"http",
+	110: "pop3",
+	111: "rpcbind",
+	123: "NTP",
+	135: "msrpc",
+	139: "netbios-ssn",
+	143: "imap",
+	443: "https",
+	445: "microsoft-ds",
+	514: "syslog",
+	520: "RIP",
+	993: "imaps",
+	995: "pop3s",
+	3306: "mysql",
+	1434: "mysql-ds",
+	3389: "ms-wbt-server",
+	5900: "vnc",
+	8080: "http-proxy",
+}
+
 type PortScan struct {
 	Port int //Port Number
 	IsOpen bool //Status
@@ -53,7 +81,10 @@ func isPortOpen(ports []string) []PortScan {
 			}
 			go func(port_int int) {
 				defer wg.Done()
-				ch <- connect(ip, port_int, timeout)
+				res := connect(ip, port_int, timeout)
+				if res.IsOpen {
+					ch <- res
+				}
 			}(port_int)
 		}
 		wg.Wait()
@@ -66,6 +97,20 @@ func isPortOpen(ports []string) []PortScan {
 	}
 
 	return result
+}
+
+//Print the result
+func printResult(elapsed time.Duration){
+	fmt.Println("Result ---")
+	for _, elem := range result {
+		desc, ok := commonPorts[elem.Port]
+		if ok {
+			fmt.Printf("Port %d %s\n", elem.Port, desc)
+		} else {
+			fmt.Printf("Port %d\n", elem.Port)
+		}
+	}
+	fmt.Printf("Scan duration - %s", elapsed)
 }
 
 //Get a list of ports to scan
@@ -154,9 +199,8 @@ func main() {
 	fmt.Println("Go Port Scanner")
 	ip, ports, timeout, SYN = parseArgs()
 	start := time.Now()
-	fmt.Println("IP: ", ip, "\nPorts: ", ports, "\nTimeout: ", timeout, "\nSYN: ", SYN)
+	fmt.Println("IP: ", ip, "\nTimeout: ", timeout, "ms \nSYN: ", SYN)
 	isPortOpen(ports)
-	fmt.Println("Result - ", result)
 	elapsed := time.Since(start)
-	fmt.Printf("Scan duration - %s", elapsed)
+	printResult(elapsed)
 }
