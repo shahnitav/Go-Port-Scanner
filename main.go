@@ -9,6 +9,7 @@ import (
 	"strings"
 	"strconv"
 	"sync"
+	"github.com/fatih/color"
 )
 
 //Declare global variables for the IP Address, Port Range and whether it is a SYN Scan
@@ -26,23 +27,36 @@ var commonPorts = map[int] string {
 	53: "DNS",
 	68: "DHCP",
 	80 :"http",
+	88: "kerberos",
 	110: "pop3",
 	111: "rpcbind",
 	123: "NTP",
 	135: "msrpc",
 	139: "netbios-ssn",
 	143: "imap",
+	389: "LDAP",
 	443: "https",
 	445: "microsoft-ds",
 	514: "syslog",
 	520: "RIP",
+	691: "MSExchange",
 	993: "imaps",
 	995: "pop3s",
-	3306: "mysql",
 	1434: "mysql-ds",
+	3306: "mysql",
+	3689: "iTunes",
+	3690: "Subversion",
 	3389: "ms-wbt-server",
+	5432: "PostgreSQL",
 	5900: "vnc",
+	6347: "Gnutella",
+	6999: "BitTorrent",
+	8000: "Internet Radio",
 	8080: "http-proxy",
+	8200: "Internet Radio",
+	11371: "OpenPGP",
+	12345: "NetBus",
+	33434: "traceroute",
 }
 
 type PortScan struct {
@@ -101,13 +115,13 @@ func isPortOpen(ports []string) []PortScan {
 
 //Print the result
 func printResult(elapsed time.Duration){
-	fmt.Println("Result ---")
+	color.Cyan("Results")
 	for _, elem := range result {
 		desc, ok := commonPorts[elem.Port]
 		if ok {
-			fmt.Printf("Port %d %s\n", elem.Port, desc)
+			color.Green("Port %d %s\n", elem.Port, desc)
 		} else {
-			fmt.Printf("Port %d\n", elem.Port)
+			color.Green("Port %d\n", elem.Port)
 		}
 	}
 	fmt.Printf("Scan duration - %s", elapsed)
@@ -196,7 +210,7 @@ func parseArgs() (string, []string, int, bool) {
 }
 
 func main() {
-	fmt.Println("Go Port Scanner")
+	color.Cyan("Go Port Scanner")
 	ip, ports, timeout, SYN = parseArgs()
 	start := time.Now()
 	fmt.Println("IP: ", ip, "\nTimeout: ", timeout, "ms \nSYN: ", SYN)
