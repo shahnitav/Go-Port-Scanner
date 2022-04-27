@@ -85,6 +85,7 @@ Instructions to set up this project in your local environment are listed down be
    ```sh
    go get github.com/shahnitav/Go-Port-Scanner
    ```
+  Or get the pre-build binary from the [Releases](https://github.com/shahnitav/Go-Port-Scanner/releases).
 
 ## Build
   To build the project
