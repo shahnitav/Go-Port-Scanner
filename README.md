@@ -13,8 +13,6 @@
   </p>
 </div>
 
-
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -30,8 +28,10 @@
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
+        <li><a href="#build">Build</a></li>
       </ul>
     </li>
+    <li><a href="#options">Options</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
@@ -41,20 +41,20 @@
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
 Go Port Scanner is a lightweight and extremely fast port & host scanner.
 
 ![Go Port Scanner - Port Scan](./img/img1.png)
+
 `Port Scan`
 
 ![Go Port Scanner - Host Discovery](./img/img2.png)
+
 `Host Discovery`
 
-
+I decided to build this port scanner using Golang because of the concurrency provided by Go. I am using goroutines to check the status of multiple ports/hosts simulatenously. This leads to higher resource efficiency and speed to complete the scan. On an average Go Port Scanner was able to get the result in 50% less time compared to Nmap's fast scan. 
 
 ### Built With
 
@@ -70,7 +70,7 @@ Instructions to set up this project in your local environment are listed down be
 
 ### Prerequisites
 
-* Go v1.x
+* Go v1.18
   ```sh
   https://go.dev/doc/install
   ```
@@ -79,39 +79,93 @@ Instructions to set up this project in your local environment are listed down be
   https://git-scm.com/
   ```
 
-### Installation
+## Installation
 
    Get the repository with go get
    ```sh
    go get github.com/shahnitav/Go-Port-Scanner
    ```
 
+## Build
+  To build the project
+  1. Clone the repository
+      ```
+      git clone https://github.com/shahnitav/Go-Port-Scanner.git
+      ```
+  2. Run make
+      ```sh
+      make
+      ```
+      Or build the binary using 
+      ```
+      go build -o bin/ cmd/main.go
+      ```
 
+## Options
+### `--ip [IP Address]`
+Target IP Address/es whose Ports need to be scanned. It can parse single IP Address for Port Scanning as well as CIDR which can be used for Host Discovery.
 
-<!-- USAGE EXAMPLES -->
+For example:
+```
+--ip 192.168.126.131 || --ip 192.168.126.131
+```
+### `-p [Port Numbers]` `--port [Port Numbers]`
+Specifies the ports to be scanned for to get their status. It can be a single value, a range of values, or multiple values. Port Numbers are required for Port Scanning and will not be considered during Host Discovery.
+
+For example:
+```
+-p 80 || --port 1-9000 || -p 80,443,21
+```
+### `--t [Timeout]`
+Used to configure the timeout in Milliseconds while connecting with a Port. Not required, the default value is 500ms.
+
+### `-i` `--icmp`
+It is a flag to be passed with a Single/CIDR IP Address to scan for hosts. ICMP Mode sends ICMP Ping packets to the hosts to check their status.
+
+For example:
+```
+./main --ip 192.168.126.0/24 -i
+```
+### `-h` `--help`
+Shows the Help page
+
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+Go Port Scanner can be used to conduct follow tasks:
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+### **Scan for open port on a single host**
+It will scan for open port 3306 on the host.
+```
+./main --ip 192.168.126.131 -p 3306
+```
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+### **Scan for a range of open ports on a single host**
+It will scan for open ports from 1-9000 and also label the common ports.
+```
+./main --ip 192.168.126.131 -p 1-9000
+```
 
+### **Scan for multiple open ports on a single host with a timeout of 1000ms**
+It will scan for multiple open ports 80,443,1202 on the host.
+```
+./main --ip 192.168.126.131 -p 80,443,1202 -t 1000
+```
 
+### **Discover Hosts in the provided CIDR**
+It will scan for open ports from 1-9000 and also label the common ports.
+```
+./main --ip 192.168.126.128/28 -i
+```
 
 <!-- ROADMAP -->
 ## Roadmap
 
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
+- [x] Parallel Port Scanning with Goroutines
+- [x] Host discovery with ICMP Pings
+- [ ] SYN Stealth Scanning
 
 
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
+See the [open issues](https://github.com/shahnitav/Go-Port-Scanner/issues) for a full list of proposed features (and known issues).
 
 
 <!-- CONTRIBUTING -->
@@ -128,60 +182,26 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
+Distributed under the GNU License. See `LICENSE` for more information.
 
 
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Nitav Shah - [@shah_nitav](https://twitter.com/shah_nitav) - shahnitav@gmail.com
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
+[https://github.com/shahnitav/Go-Port-Scanner](https://github.com/shahnitav/Go-Port-Scanner)
 
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
-* [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
-* [React Icons](https://react-icons.github.io/react-icons/search)
-
-<p align="right">(<a href="#top">back to top</a>)</p>
+* [Furious Port Scanner](https://github.com/liamg/furious)
+* [TutorialEdge](https://tutorialedge.net/projects/building-security-tools-in-go/building-port-scanner-go/)
+* [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
+* [Elliot Chance](https://elliotchance.medium.com/goroutines-and-channels-a-real-ly-simple-server-in-go-93ba49ff7c5c)
 
 
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
