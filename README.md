@@ -5,7 +5,7 @@
 
   <p align="center">
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template">Binaries</a>
+    <a href="https://github.com/shahnitav/Go-Port-Scanner/releases">Binaries</a>
     ·
     <a href="https://github.com/shahnitav/Go-Port-Scanner/issues">Report Bug</a>
     ·
@@ -58,7 +58,7 @@ I decided to build this port scanner using Golang because of the concurrency pro
 
 ### Built With
 
-* [Go](https://nextjs.org/)
+* [Go](https://go.dev/)
 * [argparse](https://pkg.go.dev/github.com/akamensky/argparse)
 * [color](https://pkg.go.dev/github.com/fatih/color)
 * [ping](https://pkg.go.dev/github.com/sparrc/go-ping)
